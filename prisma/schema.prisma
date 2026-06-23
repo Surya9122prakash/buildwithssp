@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  password     String
+  role         String    // "client" | "owner"
+  name         String
+  mobile       String?
+  gender       String?
+  dob          String?
+  profileImage String?
+  bio          String?
+  projects     Project[]
+}
+
+model Project {
+  id           String        @id @default(uuid())
+  name         String
+  description  String
+  status       String        // "On Track" | "In Review" | "Pending Client" | "Delayed"
+  progress     Int           // 0 to 100
+  phase        String        // "Discovery" | "Design" | "Development" | "Testing" | "Launch"
+  clientId     String?
+  client       User?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  deliverables Deliverable[]
+  invoices     Invoice[]
+  messages     Message[]
+  meetings     Meeting[]
+}
+
+model Deliverable {
+  id        String  @id @default(uuid())
+  name      String
+  phase     String
+  status    String  // "pending" | "approved" | "revision"
+  feedback  String?
+  link      String?
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model Invoice {
+  id        String  @id @default(uuid())
+  title     String
+  amount    Float
+  status    String  // "paid" | "pending" | "locked"
+  dueDate   String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model Message {
+  id        String  @id @default(uuid())
+  sender    String  // "owner" | "client" | "system"
+  text      String
+  time      String
+  fileUrl   String?
+  fileName  String?
+  edited    Boolean? @default(false)
+  reactions String?
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model Meeting {
+  id         String  @id @default(uuid())
+  clientName String
+  date       String
+  time       String
+  topic      String
+  duration   String
+  link       String?
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+}
+
+model Brief {
+  id          String  @id @default(uuid())
+  clientName  String
+  projectName String
+  budget      Float
+  description String
+  status      String  // "pending" | "approved" | "declined"
+  clientId    String?
+}
+
+model TimelineItem {
+  id        String  @id @default(uuid())
+  type      String  // "Work Experience" | "Featured Project"
+  title     String
+  subtitle  String?
+  period    String
+  details   String  // JSON string representing list of strings
+  tags      String  // JSON string representing list of strings
+  image     String
+  link      String
+  order     Int
+}
+
+model Setting {
+  key   String @id
+  value String
+}

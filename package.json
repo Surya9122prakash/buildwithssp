@@ -1,0 +1,34 @@
+{
+  "name": "portfolio_build_with_ssp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1072.0",
+    "@aws-sdk/s3-request-presigner": "^3.1072.0",
+    "@prisma/client": "^5.22.0",
+    "@reduxjs/toolkit": "^2.12.0",
+    "gsap": "^3.15.0",
+    "ioredis": "^5.11.1",
+    "lucide-react": "^1.18.0",
+    "next": "^15.0.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-redux": "^9.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
+    "eslint": "^9",
+    "eslint-config-next": "^15.0.3",
+    "prisma": "^5.22.0",
+    "typescript": "^5"
+  }
+}
