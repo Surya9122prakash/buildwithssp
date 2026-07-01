@@ -36,8 +36,9 @@ export async function POST(
     const body = await request.json();
     const { clientName, date, time, topic, duration } = body;
 
-    const meetingCode = `${Math.random().toString(36).substring(2, 5)}-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`;
-    const link = `https://meet.google.com/${meetingCode}`;
+    // Instead of a random invalid string, we use the Google Meet 'new' shortcut 
+    // which generates a real, valid meeting on the fly when clicked.
+    const link = `https://meet.google.com/new`;
 
     const meeting = await prisma.meeting.create({
       data: {
