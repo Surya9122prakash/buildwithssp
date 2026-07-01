@@ -2558,12 +2558,20 @@ export default function Dashboard() {
 
               <div className="dashboard-grid-two">
                 {/* Calendar Selection Card */}
-                <div className="scheduler-card glass-panel">
+                <div className="scheduler-card glass-panel" style={{ position: "relative", overflow: "hidden" }}>
                   <div className="panel-title-bar">
                     <h3>Select Slot & Date</h3>
                   </div>
 
-                  <form onSubmit={handleScheduleCall} className="scheduler-form">
+                  {/* Coming Soon Overlay */}
+                  <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", backgroundColor: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
+                    <div style={{ background: "rgba(99, 102, 241, 0.2)", padding: "1rem 2rem", borderRadius: "30px", border: "1px solid rgba(99, 102, 241, 0.5)", color: "white", fontWeight: 600, display: "flex", gap: "0.8rem", alignItems: "center", boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }}>
+                      <Calendar size={20} />
+                      Feature Coming Soon
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleScheduleCall} className="scheduler-form" style={{ opacity: 0.5, pointerEvents: "none" }}>
                     <div className="form-group">
                       <label>Choose Sync Date</label>
                       <input
