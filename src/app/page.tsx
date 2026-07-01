@@ -2260,7 +2260,7 @@ export default function Dashboard() {
                     <a href="https://wa.me/916383513214" target="_blank" rel="noopener noreferrer" className="widget-action-btn" style={{ background: "rgba(37, 211, 102, 0.15)", color: "#25D366", borderColor: "rgba(37, 211, 102, 0.3)", textDecoration: "none" }}>
                       WhatsApp
                     </a>
-                    <a href="https://t.me/" target="_blank" rel="noopener noreferrer" className="widget-action-btn" style={{ background: "rgba(0, 136, 204, 0.15)", color: "#0088cc", borderColor: "rgba(0, 136, 204, 0.3)", textDecoration: "none" }}>
+                    <a href="https://t.me/surya_9122" target="_blank" rel="noopener noreferrer" className="widget-action-btn" style={{ background: "rgba(0, 136, 204, 0.15)", color: "#0088cc", borderColor: "rgba(0, 136, 204, 0.3)", textDecoration: "none" }}>
                       Telegram
                     </a>
                   </div>

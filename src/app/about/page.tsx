@@ -161,6 +161,7 @@ const educationList = [
 ];
 
 export default function About() {
+  const [activeSection, setActiveSection] = useState("about");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const leftColRef = useRef<HTMLDivElement>(null);
@@ -200,6 +201,37 @@ export default function About() {
     }
     fetchTimeline();
   }, []);
+
+  // Section Observer for Active Nav Link
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -70% 0px",
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target === containerRef.current) setActiveSection("about");
+          else if (entry.target === servicesRef.current) setActiveSection("services");
+          else if (entry.target === skillsRef.current) setActiveSection("skills");
+          else if (entry.target === timelineSectionRef.current) setActiveSection("experience");
+          else if (entry.target === educationRef.current) setActiveSection("education");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    if (containerRef.current) observer.observe(containerRef.current);
+    if (servicesRef.current) observer.observe(servicesRef.current);
+    if (skillsRef.current) observer.observe(skillsRef.current);
+    if (timelineSectionRef.current) observer.observe(timelineSectionRef.current);
+    if (educationRef.current) observer.observe(educationRef.current);
+
+    return () => observer.disconnect();
+  }, [loading]);
 
   // 1. STICKY HERO SCROLL TIMELINE (SECTION 1 + 2)
   useEffect(() => {
@@ -383,9 +415,10 @@ export default function About() {
     return () => mm.revert();
   }, [loading, timelineItems]);
 
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetRef: React.RefObject<HTMLElement | null> | null) => {
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetRef: React.RefObject<HTMLElement | null> | null, sectionName: string) => {
     e.preventDefault();
     setIsMenuOpen(false);
+    setActiveSection(sectionName);
 
     if (targetRef && targetRef.current) {
       const offset = 80; // Navbar height offset
@@ -406,9 +439,7 @@ export default function About() {
 
   return (
     <>
-      {/* Background canvas elements */}
-      <div className="bg-canvas" />
-      <div className="bg-grid" />
+      {/* Background elements are now handled globally by Background3D */}
 
       {/* Sticky frosted glass navbar */}
       <header className="navbar">
@@ -418,13 +449,13 @@ export default function About() {
           </a>
 
           <nav className="nav-desktop">
-            <a href="/" style={{ color: "var(--primary)" }}>Dashboard</a>
-            <a href="#" onClick={(e) => handleSmoothScroll(e, null)}>About</a>
-            <a href="#" onClick={(e) => handleSmoothScroll(e, servicesRef)}>Services</a>
-            <a href="#" onClick={(e) => handleSmoothScroll(e, skillsRef)}>Skills</a>
-            <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef)}>Experience & Projects</a>
-            <a href="#" onClick={(e) => handleSmoothScroll(e, educationRef)}>Education</a>
-            <a href="#" className="nav-contact-btn" onClick={(e) => handleSmoothScroll(e, contactRef)}>Get In Touch</a>
+            <a href="/">Dashboard</a>
+            <a href="#" onClick={(e) => handleSmoothScroll(e, null, "about")} style={{ color: activeSection === "about" ? "var(--primary)" : undefined }}>About</a>
+            <a href="#" onClick={(e) => handleSmoothScroll(e, servicesRef, "services")} style={{ color: activeSection === "services" ? "var(--primary)" : undefined }}>Services</a>
+            <a href="#" onClick={(e) => handleSmoothScroll(e, skillsRef, "skills")} style={{ color: activeSection === "skills" ? "var(--primary)" : undefined }}>Skills</a>
+            <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef, "experience")} style={{ color: activeSection === "experience" ? "var(--primary)" : undefined }}>Experience & Projects</a>
+            <a href="#" onClick={(e) => handleSmoothScroll(e, educationRef, "education")} style={{ color: activeSection === "education" ? "var(--primary)" : undefined }}>Education</a>
+            <a href="#" className="nav-contact-btn" onClick={(e) => handleSmoothScroll(e, contactRef, "contact")}>Get In Touch</a>
           </nav>
 
           <button
@@ -440,12 +471,12 @@ export default function About() {
 
         <nav className={`nav-mobile ${isMenuOpen ? "open" : ""}`}>
           <a href="/">Dashboard</a>
-          <a href="#" onClick={(e) => handleSmoothScroll(e, null)}>About</a>
-          <a href="#" onClick={(e) => handleSmoothScroll(e, servicesRef)}>Services</a>
-          <a href="#" onClick={(e) => handleSmoothScroll(e, skillsRef)}>Skills</a>
-          <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef)}>Experience & Projects</a>
-          <a href="#" onClick={(e) => handleSmoothScroll(e, educationRef)}>Education</a>
-          <a href="#" className="nav-contact-btn" onClick={(e) => handleSmoothScroll(e, contactRef)}>Get In Touch</a>
+          <a href="#" onClick={(e) => handleSmoothScroll(e, null, "about")} style={{ color: activeSection === "about" ? "var(--primary)" : undefined }}>About</a>
+          <a href="#" onClick={(e) => handleSmoothScroll(e, servicesRef, "services")} style={{ color: activeSection === "services" ? "var(--primary)" : undefined }}>Services</a>
+          <a href="#" onClick={(e) => handleSmoothScroll(e, skillsRef, "skills")} style={{ color: activeSection === "skills" ? "var(--primary)" : undefined }}>Skills</a>
+          <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef, "experience")} style={{ color: activeSection === "experience" ? "var(--primary)" : undefined }}>Experience & Projects</a>
+          <a href="#" onClick={(e) => handleSmoothScroll(e, educationRef, "education")} style={{ color: activeSection === "education" ? "var(--primary)" : undefined }}>Education</a>
+          <a href="#" className="nav-contact-btn" onClick={(e) => handleSmoothScroll(e, contactRef, "contact")}>Get In Touch</a>
         </nav>
       </header>
 
