@@ -514,7 +514,7 @@ export default function About() {
               </div>
 
               <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef)} className="glass-panel" style={{ padding: "0.8rem 1.8rem", borderRadius: "30px", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem", border: "1px solid rgba(99, 102, 241, 0.3)", color: "white", textDecoration: "none" }}>
+                <a href="#" onClick={(e) => handleSmoothScroll(e, timelineSectionRef, "experience")} className="glass-panel" style={{ padding: "0.8rem 1.8rem", borderRadius: "30px", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem", border: "1px solid rgba(99, 102, 241, 0.3)", color: "white", textDecoration: "none" }}>
                   View Work
                   <ChevronDown size={18} />
                 </a>
