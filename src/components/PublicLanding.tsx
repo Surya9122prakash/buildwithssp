@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight, ArrowUpRight, BadgeCheck, Blocks, Braces, Check,
-  Code2, Compass, Globe2, Layers3, LockKeyhole, MessageSquareText,
+  Code2, Compass, Globe2, LockKeyhole,
   MonitorSmartphone, MoveUpRight, Rocket, ShieldCheck, Sparkles,
   Workflow, Zap
 } from "lucide-react";
