@@ -4,8 +4,8 @@ import Background3D from "@/components/Background3D";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Developer Portfolio | Creative Full-Stack Engineer",
-  description: "A premium portfolio website showcasing interactive scroll animations using GSAP and ScrollTrigger.",
+  title: "BuildWithSSP | Websites, Web Apps & Digital Solutions",
+  description: "BuildWithSSP develops business websites, custom web applications, API integrations, and digital solutions for clients worldwide.",
 };
 
 export default function RootLayout({

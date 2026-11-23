@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import PublicLanding from "@/components/PublicLanding";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setUser, clearUser, updateClientSettings, updateUserProfile } from "@/lib/redux/authSlice";
 import {
@@ -116,6 +117,7 @@ export default function Dashboard() {
   const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState("");
   const [logoutNotice, setLogoutNotice] = useState("");
+  const [showGuestLogin, setShowGuestLogin] = useState(false);
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<"projects" | "chat" | "billing" | "calendar" | "new-brief" | "brief-inbox" | "settings" | "profile">("projects");
@@ -1168,8 +1170,11 @@ export default function Dashboard() {
     );
   }
 
-  // Render Login Portal if not authenticated
+  // Visitors see services by default; the existing sign-in form is opened on demand.
   if (!userRole) {
+    if (!showGuestLogin) {
+      return <PublicLanding onSignIn={() => setShowGuestLogin(true)} />;
+    }
     return (
       <div className="login-root">
         <div className="bg-canvas" />
@@ -1234,6 +1239,13 @@ export default function Dashboard() {
             </button>
           </form>
 
+          <button
+            type="button"
+            onClick={() => setShowGuestLogin(false)}
+            style={{ display: "block", background: "transparent", color: "var(--text-secondary)", border: 0, margin: "1.25rem auto 0", cursor: "pointer", fontWeight: 600 }}
+          >
+            ← Back to services
+          </button>
           <div style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
             Don't have an account?{" "}
             <a href="/register" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: 600 }}>
