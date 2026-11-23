@@ -194,11 +194,6 @@ export default function Dashboard() {
 
   // Billing Modal State
   const [payingInvoice, setPayingInvoice] = useState<Invoice | null>(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCVC, setCardCVC] = useState("");
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
 
   // Deliverable Feedback Modal State
   const [revisionDeliverable, setRevisionDeliverable] = useState<Deliverable | null>(null);
@@ -601,12 +596,7 @@ export default function Dashboard() {
         if (approvedCount === updatedDels.length && approvedCount > 0) newPhase = "Launch" as const;
         const newStatus = approvedCount === updatedDels.length ? "On Track" : "In Review";
 
-        // Update Project in DB
-        await fetch(`/api/projects/${activeProjectId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ progress: newProgress, phase: newPhase, status: newStatus })
-        });
+        // Project progress is recalculated server-side when a client approves a deliverable.
 
         // Add System message log
         const approvedDel = activeProject.deliverables.find(d => d.id === deliverableId);
@@ -614,7 +604,7 @@ export default function Dashboard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sender: "system",
+            sender: "client",
             text: `✓ Deliverable Approved: "${approvedDel?.name}" signed off by Client. Project progress increased to ${newProgress}%.`
           })
         });
@@ -645,12 +635,7 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        // Update Project status to Pending Client
-        await fetch(`/api/projects/${activeProjectId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "Pending Client" })
-        });
+        // Revision status is updated securely by the server.
 
         // Add client message
         await fetch(`/api/projects/${activeProjectId}/chat`, {
@@ -672,62 +657,10 @@ export default function Dashboard() {
     }
   };
 
-  // Handle Invoice Payment (Client)
+  // Show an invoice without pretending to collect or confirm a payment.
+  // The owner supplies verified payment instructions outside this application.
   const handleOpenPaymentModal = (invoice: Invoice) => {
     setPayingInvoice(invoice);
-    setPaymentSuccess(false);
-    setPaymentLoading(false);
-    setCardNumber("");
-    setCardExpiry("");
-    setCardCVC("");
-  };
-
-  const handleProcessPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!payingInvoice || activeProjectId === "none") return;
-    setPaymentLoading(true);
-
-    try {
-      // Simulate transaction validation delay
-      await new Promise(r => setTimeout(r, 1500));
-
-      const res = await fetch(`/api/projects/${activeProjectId}/invoices`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: payingInvoice.id, status: "paid" })
-      });
-
-      if (res.ok) {
-        // Unlock next milestone invoice if applicable
-        const nextLockedInvoice = activeProject.invoices.find(i => i.status === "locked");
-        if (nextLockedInvoice && payingInvoice.status === "pending") {
-          await fetch(`/api/projects/${activeProjectId}/invoices`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: nextLockedInvoice.id, status: "pending" })
-          });
-        }
-
-        // Add System chat notice
-        await fetch(`/api/projects/${activeProjectId}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sender: "system",
-            text: `💳 Milestone Payment Confirmed: $${payingInvoice.amount.toLocaleString()} received for "${payingInvoice.title}".`
-          })
-        });
-
-        setPaymentLoading(false);
-        setPaymentSuccess(true);
-        await fetchDashboardData();
-        await fetchProjectMessages(activeProjectId);
-        broadcastEvent("PROJECT_UPDATE", activeProjectId);
-      }
-    } catch (err) {
-      console.error(err);
-      setPaymentLoading(false);
-    }
   };
 
   // Handle Sending Chat Messages
@@ -944,8 +877,8 @@ export default function Dashboard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sender: "system",
-            text: `📅 Call Scheduled: "${meetingTopic || "Project Progress Sync"}" on ${selectedDate} at ${selectedTime}. Sync Link generated.`
+            sender: userRole === "owner" ? "system" : "client",
+            text: `📅 Call Requested: "${meetingTopic || "Project Progress Sync"}" on ${selectedDate} at ${selectedTime}. The meeting link must be confirmed separately.`
           })
         });
 
@@ -3128,93 +3061,22 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* MODAL 1: PAY BILLING MILESTONE INVOICE */}
+      {/* Invoice details only: no card collection or simulated checkout */}
       {payingInvoice && (
         <div className="modal-overlay">
           <div className="modal-content glass-panel">
             <button className="close-modal-btn" onClick={() => setPayingInvoice(null)}>×</button>
-
-            {paymentSuccess ? (
-              <div className="payment-success-content">
-                <CheckCircle2 size={64} color="#22c55e" className="animate-pop" />
-                <h2 className="text-glow">Payment Confirmed!</h2>
-                <p>Transaction ID: tx_{payingInvoice.id.slice(0, 8)}_{Date.now().toString().slice(-4)}</p>
-                <div className="paid-amount">${payingInvoice.amount.toLocaleString()}</div>
-                <p style={{ color: "var(--text-secondary)" }}>
-                  Milestone Status updated. A payment confirmation receipt has been sent to client inbox.
-                </p>
-                <button onClick={() => setPayingInvoice(null)} className="dismiss-modal-btn">
-                  Back to Dashboard
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleProcessPayment} className="payment-details-form">
-                <h2 className="text-glow">Authorize Payment</h2>
-                <p className="payment-invoice-title">Milestone: {payingInvoice.title}</p>
-                <div className="payment-invoice-amount">${payingInvoice.amount.toLocaleString()}</div>
-
-                <div className="form-group">
-                  <label>Cardholder Name</label>
-                  <input type="text" placeholder="Acme Corporation Inc" className="form-input" required />
-                </div>
-
-                <div className="form-group">
-                  <label>Credit Card Number</label>
-                  <input
-                    type="text"
-                    placeholder="4111 2222 3333 4444"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    className="form-input"
-                    maxLength={19}
-                    required
-                  />
-                </div>
-
-                <div className="form-row-two">
-                  <div className="form-group">
-                    <label>Expiration</label>
-                    <input
-                      type="text"
-                      placeholder="MM/YY"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(e.target.value)}
-                      className="form-input"
-                      maxLength={5}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>CVC</label>
-                    <input
-                      type="password"
-                      placeholder="•••"
-                      value={cardCVC}
-                      onChange={(e) => setCardCVC(e.target.value)}
-                      className="form-input"
-                      maxLength={3}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="security-guarantees">
-                  <ShieldAlert size={16} />
-                  <span>Secure 256-bit encrypted checkout sandbox.</span>
-                </div>
-
-                <button type="submit" className="submit-payment-btn" disabled={paymentLoading}>
-                  {paymentLoading ? (
-                    <>
-                      <Loader2 className="spinning-loader" size={18} />
-                      <span>Verifying Card Details...</span>
-                    </>
-                  ) : (
-                    <span>Pay ${payingInvoice.amount.toLocaleString()} Securely</span>
-                  )}
-                </button>
-              </form>
-            )}
+            <h2 className="text-glow">Invoice details</h2>
+            <p className="payment-invoice-title">Milestone: {payingInvoice.title}</p>
+            <div className="payment-invoice-amount">${payingInvoice.amount.toLocaleString()}</div>
+            <p style={{ color: "var(--text-secondary)", marginTop: "1rem" }}>
+              Payments are not processed on BuildWithSSP. Please contact your project owner
+              for a verified invoice and secure external payment instructions.
+              Your invoice will be marked paid only after the owner confirms receipt.
+            </p>
+            <button onClick={() => setPayingInvoice(null)} className="dismiss-modal-btn">
+              Back to Dashboard
+            </button>
           </div>
         </div>
       )}
