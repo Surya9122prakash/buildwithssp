@@ -591,11 +591,6 @@ export default function Dashboard() {
         const approvedCount = updatedDels.filter(d => d.status === "approved").length;
         const newProgress = Math.min(100, Math.round((approvedCount / updatedDels.length) * 100));
 
-        let newPhase = activeProject.phase;
-        if (approvedCount >= updatedDels.length - 1 && approvedCount > 0) newPhase = "Testing" as const;
-        if (approvedCount === updatedDels.length && approvedCount > 0) newPhase = "Launch" as const;
-        const newStatus = approvedCount === updatedDels.length ? "On Track" : "In Review";
-
         // Project progress is recalculated server-side when a client approves a deliverable.
 
         // Add System message log
@@ -917,7 +912,7 @@ export default function Dashboard() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              sender: "system",
+              sender: userRole === "owner" ? "system" : "client",
               text: `📝 New Brief Submitted: "${newProjectName.trim()}". Surya has been notified and will review the specifications.`
             })
           });
@@ -2453,7 +2448,7 @@ export default function Dashboard() {
                           <span className="locked-text" style={{ color: "var(--accent)" }}>Client Action Pending</span>
                         )}
                         {inv.status === "paid" && (
-                          <span className="receipt-text">Receipt Available</span>
+                          <span className="receipt-text">Marked Paid by Owner</span>
                         )}
                         {inv.status === "locked" && userRole === "client" && (
                           <span className="locked-text">Locked until prior phase</span>
