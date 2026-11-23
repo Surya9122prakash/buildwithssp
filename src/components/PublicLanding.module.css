@@ -30,6 +30,7 @@
 .signIn { background: transparent; border: 0; color: #343947; font-size: 13px; font-weight: 750; white-space: nowrap; }
 .navCta { border-radius: 7px; display: flex; align-items: center; gap: 10px; padding: 15px 19px; background: var(--ink); color: #fff !important; font-size: 12px; font-weight: 800; transition: background .2s, transform .2s; white-space: nowrap; }
 .navCta:hover,.primaryCta:hover { background: #333c52; transform: translateY(-2px); }
+.heroCopy { position: relative; z-index: 1; }
 .hero { max-width: 1376px; margin: auto; padding: 104px 52px 112px; display: grid; grid-template-columns: 1.06fr .94fr; gap: 54px; align-items: center; }
 .eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 10px; color: #4b5262; letter-spacing: 1.7px; font-weight: 800; }
 .pulse,.captionDot { width: 8px; height: 8px; display: inline-block; background: #7fbb93; border-radius: 50%; box-shadow: 0 0 0 4px #dff2e4; }
